@@ -1,93 +1,110 @@
-# dawn-lightning
+# Installing PyTorch Lightning on Dawn
 
+## 1. Introduction
 
+This is guidance for installing
+[PyTorch Lightning](https://lightning.ai/docs/pytorch/stable)
+in a [conda](https://docs.conda.io/en/latest/) environment on
+the [Dawn supercomputer](https://www.hpc.cam.ac.uk/d-w-n).  Dawn is
+hosted at the University of Cambridge, and is part
+of the [AI Resource Research (AIRR)](https://www.gov.uk/government/publications/ai-research-resource/airr-advanced-supercomputers-for-the-uk).  It was
+initially installed with 256 nodes, in the form of [Dell PowerEdge XE9640](https://www.delltechnologies.com/asset/en-us/products/servers/technical-support/poweredge-xe9640-spec-sheet.pdf) servers.  Each node consisted of: 2 CPUs ([Intel Xeon Platinum 8468](https://www.intel.com/content/www/us/en/products/sku/231735/intel-xeon-platinum-8468-processor-105m-cache-2-10-ghz/specifications.html)), each with 48 cores and 512 GiB RAM; 4 GPUs ([Intel Data Centre GPU Max 1550](https://www.intel.com/content/www/us/en/products/sku/232873/intel-data-center-gpu-max-1550/specifications.html)),
+each with two stacks (or tiles), 1024 compute units, and 128 GiB RAM.
 
-## Getting started
+The material collected here is licensed under the
+[Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## 2. Installation
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+In case you don't already have your own `conda` installation, you can find
+guidance for installing `conda` on Dawn at:
+- [https://github.com/kh296/dawn-conda](https://github.com/kh296/dawn-conda)
 
-## Add your files
+Installation of PyTorch may be performed
+[via a Slurm job](#21-installation-via-a-slurm-job) or
+[from the command line](#22-installation-from-the-command-line).  As
+installation takes 30-60 minutes, the former is recommended
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+### 2.1 Installation via a Slurm job
 
+On a Dawn login node or compute node, clone this repository,
+and move to the `scripts` directory:
 ```
-cd existing_repo
-git remote add origin https://gitlab.developers.cam.ac.uk/kh296/dawn-lightning.git
-git branch -M main
-git push -uf origin main
+git clone https://github.com/kh296/dawn-lightning
+cd dawn-lightning/scripts
 ```
 
-## Integrate with your tools
+Submit a Slurm job to run the installation script:
+```
+# Substitute for <project_account> a valid project account.
+# Set CONDA_INSTALL to the path of your conda installation.
+sbatch --account=<project_account> --export=CONDA_INSTALL="~/miniforge3" ./lightning_install.sh
+```
 
-* [Set up project integrations](https://gitlab.developers.cam.ac.uk/kh296/dawn-lightning/-/settings/integrations)
+Once it starts running, the script should take 30-60 minutes to
+complete.  The job output is written to `lightning_install.log`.  If the
+installation is successful, the last line of the output is the command
+to set up the environment for using PyTorch Lightning.  This command references
+the setup file `../envs/lightning-setup.sh`, created during installation.
 
-## Collaborate with your team
+### 2.2 Installation from the command line
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+On a Dawn compute node, clone this repository, and move to
+the `scripts` directory:
+```
+git clone https://github.com/kh296/dawn-lightning
+cd dawn-lightning/scripts
+```
 
-## Test and Deploy
+Run the installation script:
+```
+# Set CONDA_INSTALL to the path of your conda installation.
+CONDA_INSTALL="~/miniforge3" ./lightning_install.sh |& tee lightning_install.log
+```
 
-Use the built-in continuous integration in GitLab.
+Output is written both to terminal and to the file `lightning_install.log`.
+If the installation is successful, the last line of the output is the command
+to set up the environment for using PyTorch.  This command references the
+setup file `../envs/lightning-setup.sh`, created during installation.
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+## 3. Further information
 
-***
+Installation of `PyTorch Lightning` on Dawn is based on the documentation for
+[lightning-xpu](https://github.com/kh296/lightning-xpu).
 
-# Editing this README
+The installation script [scripts/pytorch_install.sh](scripts/pytorch_install.sh)
+installs the latest stable versions of 'lightning-xpu', 'lightning',
+`torch`, `torchvision`, along with their dependencies.  If you want to install
+specific versions, you can edit the script to indicate this.  If you want to
+install additional packages, the suggested approach is to set up the `conda`
+environment for using PyTorch Lightning, and then install the additional
+packages with `conda`, `pip` or `uv`.  For example, to add `pandas`, starting
+from the `scripts` directory, you could use:
+ ```
+source ../envs/lightning-setup.sh
+pip install pandas
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+The installation script provides several options, for example allowing
+installation to a `conda` environment with a name different from the default
+(`lightning`).  For
+more information, from the `scripts` directory run:
+```
+./lightning_install.sh -h
+```
 
-## Suggestions for a good README
+The setup script `envs/lightning-setup.sh`, created during installation,
+sets values for a number of environment variables relevant to using
+PyTorch with Intel GPUs, including for distributed processing.  These
+variables are documented in the setup script.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+The setup script performs all environment setup needed to use PyTorch
+Lightning, including making available compatible versions of oneAPI libraries:
+```
+# Perform environment setup for using PyTorch Lightning.
+# Substitute for <setup script> the path to the setup script.
+source <setup script>
+```
+The script generally shouldn't be combined with system scripts and
+modules for environment setup.  In particular, none of the system modules
+for `conda` setup or for oneAPI setup should be loaded.
