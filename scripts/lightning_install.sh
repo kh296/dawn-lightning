@@ -321,6 +321,8 @@ if [[ ! -d "${LIGHTNING_XPU}" ]]; then
     echo "Cloning lightning-xpu"
     echo "${CMD}"
     eval "${CMD}"
+fi
+if [[ ! -d "${LIGHTNING_XPU}/envs" ]]; then
     mkdir ${LIGHTNING_XPU}/envs
     cp ${SETUP} ${LIGHTNING_XPU}/envs 
     echo ""
