@@ -94,6 +94,8 @@ fi
 # Determine system being used.
 if [[ "$(hostname)" == "pvc-s"* ]]; then
     SYSTEM="Dawn"
+elif [[ "$(hostname)" == "gpu-u"* ]]; then
+    SYSTEM="Zenith"
 elif [[ "$(hostname)" == *"-pl1"* ]]; then
     SYSTEM="aac6"
 elif [[ "${OSTYPE}" == "darwin"* ]]; then
@@ -135,10 +137,13 @@ ENVS_DIR=$(realpath ..)/envs
 mkdir -p ${ENVS_DIR}
 SETUP="${ENVS_DIR}/${CONDA_ENV}-setup.sh"
 DAWN_SETUP="/dev/null"
+ZENITH_SETUP="/dev/null"
 AAC6_SETUP="/dev/null"
 MACOS_SETUP="/dev/null"
 if [[ "Dawn" == "${SYSTEM}" ]]; then
     DAWN_SETUP="${SETUP}"
+elif [[ "Zenith" == "${SYSTEM}" ]]; then
+    ZENITH_SETUP="${SETUP}"
 elif [[ "aac6" == "${SYSTEM}" ]]; then
     AAC6_SETUP="${SETUP}"
 elif [[ "macOS" == "${SYSTEM}" ]]; then
@@ -259,6 +264,14 @@ cat <<EOF >>${MACOS_SETUP}
 # Initialise environment variables that may be used at run time.
 # Define network interface.
 export GLOO_SOCKET_IFNAME="en0"
+EOF
+
+cat <<EOF >>${ZENITH_SETUP}
+# Load modules.
+module purge
+module load rhel9/mi355x/base
+module load openmpi
+
 EOF
 
 cat <<EOF >>${AAC6_SETUP}
