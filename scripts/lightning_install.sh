@@ -335,8 +335,10 @@ CMDS=(
     "python -m pip install uv"
     "uv pip install torch torchvision --torch-backend=auto"
     "uv pip install lightning[extra] litmodels"
-    "uv pip install ${LIGHTNING_XPU}"
 )
+if [[ "Dawn" == "${SYSTEM}" ]]; then
+    CMDS+=("uv pip install ${LIGHTNING_XPU}")
+fi
 
 for CMD in "${CMDS[@]}"; do
     echo ""
@@ -349,7 +351,7 @@ T1=${SECONDS}
 # Check imports.
 echo ""
 echo "Performing initial imports:"
-CMD="python -c 'import lightning_xpu; import lightning'"
+CMD="python -c 'import lightning'"
 echo "${CMD}"
 eval "${CMD}"
 
@@ -361,7 +363,10 @@ python - <<EOF
 Python code for checking devices seen by lightning.
 """
 import socket
-import lightning_xpu
+try:
+    import lightning_xpu
+except ModuleNotFoundError
+    pass
 from lightning.pytorch.accelerators import AcceleratorRegistry
 from lightning.fabric.utilities.exceptions import MisconfigurationException
 
