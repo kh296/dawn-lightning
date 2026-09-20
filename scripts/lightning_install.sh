@@ -349,7 +349,7 @@ T1=${SECONDS}
 # Check imports.
 echo ""
 echo "Performing initial imports:"
-CMD="python -c 'import lightning'"
+CMD="python -c 'import lightning_xpu; import lightning'"
 echo "${CMD}"
 eval "${CMD}"
 
@@ -361,6 +361,7 @@ python - <<EOF
 Python code for checking devices seen by lightning.
 """
 import socket
+import lightning_xpu
 from lightning.pytorch.accelerators import AcceleratorRegistry
 from lightning.fabric.utilities.exceptions import MisconfigurationException
 
