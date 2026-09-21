@@ -315,18 +315,18 @@ eval "${CMD}"
 
 # Clone lightning-xpu project.
 PROJECTS_DIR=$(realpath ..)/projects
-LIGHTNING_XPU="${PROJECTS_DIR}/lightning-xpu"
-if [[ ! -d "${LIGHTNING_XPU}" ]]; then
-    CMD="git clone https://github.com/kh296/lightning-xpu ${LIGHTNING_XPU}"
-    echo "Cloning lightning-xpu"
-    echo "${CMD}"
-    eval "${CMD}"
-fi
-if [[ ! -d "${LIGHTNING_XPU}/envs" ]]; then
-    mkdir ${LIGHTNING_XPU}/envs
-    cp ${SETUP} ${LIGHTNING_XPU}/envs 
-    echo ""
-fi
+#LIGHTNING_XPU="${PROJECTS_DIR}/lightning-xpu"
+#if [[ ! -d "${LIGHTNING_XPU}" ]]; then
+#    CMD="git clone https://github.com/kh296/lightning-xpu ${LIGHTNING_XPU}"
+#    echo "Cloning lightning-xpu"
+#    echo "${CMD}"
+#    eval "${CMD}"
+#fi
+#if [[ ! -d "${LIGHTNING_XPU}/envs" ]]; then
+#    mkdir ${LIGHTNING_XPU}/envs
+#    cp ${SETUP} ${LIGHTNING_XPU}/envs 
+#    echo ""
+#fi
 
 # Install additional packages.
 echo "Installing packages:"
@@ -337,7 +337,8 @@ CMDS=(
     "uv pip install lightning[extra] litmodels"
 )
 if [[ "Dawn" == "${SYSTEM}" ]]; then
-    CMDS+=("uv pip install ${LIGHTNING_XPU}")
+    #CMDS+=("uv pip install ${LIGHTNING_XPU}")
+    CMDS+=("uv pip install git+https://github.com/kh296/lightning-xpu#egg=lightning_xpu")
 fi
 
 for CMD in "${CMDS[@]}"; do
@@ -365,7 +366,7 @@ Python code for checking devices seen by lightning.
 import socket
 try:
     import lightning_xpu
-except ModuleNotFoundError
+except ModuleNotFoundError:
     pass
 from lightning.pytorch.accelerators import AcceleratorRegistry
 from lightning.fabric.utilities.exceptions import MisconfigurationException
