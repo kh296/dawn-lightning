@@ -330,10 +330,21 @@ fi
 
 # Install additional packages.
 echo "Installing packages:"
+OPTS=""
+TORCH="torch torchvision"
+if [[ "Dawn" == "${SYSTEM}" ]]; then
+    OPTS=" --index-url https://download.pytorch.org/whl/xpu"
+elif [[ "aac6" == "${SYSTEM}" ]]; then
+    OPTS=" --index-url https://download.pytorch.org/whl/rocm7.2"
+elif [[ "Zenith" == "${SYSTEM}" ]]; then
+    OPTS=" --index-url https://repo.amd.com/rocm/whl-multi-arch/"
+    TORCH="torch[device-gfx950]==2.12.0+rocm7.14.0\
+ torchvision[device-gfx950]==0.27.0+rocm7.14.0"
+fi
 CMDS=(
     "python -m pip install --upgrade pip"
     "python -m pip install uv"
-    "uv pip install torch torchvision --torch-backend=auto"
+    "uv pip install${OPTS} ${TORCH}"
     "uv pip install lightning[extra] litmodels"
 )
 if [[ "Dawn" == "${SYSTEM}" ]]; then
