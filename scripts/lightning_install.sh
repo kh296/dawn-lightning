@@ -161,7 +161,7 @@ cat <<EOF >>${DAWN_SETUP}
 # Load modules.
 module purge
 module load rhel9/default-dawn
-source /usr/local/dawn/software/external/intel-oneapi/2026.0.0/setvars.sh
+source /usr/local/dawn/software/external/intel-oneapi/2026.1.0/setvars.sh
 
 # Set level-zero environment variables:
 # https://oneapi-src.github.io/level-zero-spec/level-zero/latest/core/PROG.html#environment-variables
@@ -334,6 +334,7 @@ OPTS=""
 TORCH="torch torchvision"
 if [[ "Dawn" == "${SYSTEM}" ]]; then
     OPTS=" --index-url https://download.pytorch.org/whl/xpu"
+    TORCH="torch==2.13.0 torchvision==0.28.0"
 elif [[ "aac6" == "${SYSTEM}" ]]; then
     OPTS=" --index-url https://download.pytorch.org/whl/rocm7.2"
 elif [[ "Zenith" == "${SYSTEM}" ]]; then
